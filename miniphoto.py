@@ -26,35 +26,43 @@ class MainWindow(QMainWindow):
         # 사이드바 메뉴버튼
         sidebar = QVBoxLayout()
         button1 = QPushButton("이미지 열기")
-        button2 = QPushButton("좌우반전")
-        button3 = QPushButton("새로고침")
-        button4 = QPushButton("흑백변환")
-       
+        button2 = QPushButton("새로고침")
+        button3 = QPushButton("좌우반전")
+        button4 = QPushButton("상하반전")
+        button5 = QPushButton("흑백변환")
         button6 = QPushButton("노이즈제거")
+        button7 = QPushButton("원마스크")
+        button8 = QPushButton("회전")
+        button9 = QPushButton("확대")
+        button10 = QPushButton("축소")
+        button11 = QPushButton("히스토그램")
        
-        
-        button9 = QPushButton("상하반전")
        
        
         
         button1.clicked.connect(self.show_file_dialog)
-        button2.clicked.connect(self.flip_image)
-        button3.clicked.connect(self.clear_label)
-        button4.clicked.connect(self.image_grey)
-        
+        button2.clicked.connect(self.clear_label)
+        button3.clicked.connect(self.flip_image)
+        button4.clicked.connect(self.flip_image2)
+        button5.clicked.connect(self.image_grey)
         button6.clicked.connect(self.denoise)
-        
-        
-        button9.clicked.connect(self.flip_image2)
-        
+        button7.clicked.connect(self.circle_image)
+        button8.clicked.connect(self.rotate_image)
+        button9.clicked.connect(self.big_image)
+        button10.clicked.connect(self.small_image)
+        button11.clicked.connect(self.hist)
+      
         sidebar.addWidget(button1)
         sidebar.addWidget(button2)
         sidebar.addWidget(button3)
         sidebar.addWidget(button4)
-      
+        sidebar.addWidget(button5)
         sidebar.addWidget(button6)
-     
+        sidebar.addWidget(button7)
+        sidebar.addWidget(button8)
         sidebar.addWidget(button9)
+        sidebar.addWidget(button10)
+        sidebar.addWidget(button11)
      
 
         main_layout.addLayout(sidebar)
@@ -117,9 +125,7 @@ class MainWindow(QMainWindow):
         )
         pixmap = QPixmap(image)
         self.label2.setPixmap(pixmap)
-
-        
-        
+       
     def denoise(self):
         image = cv2.fastNlMeansDenoisingColored(self.image, None, 15, 15, 5, 10)
         h, w, _ = image.shape
@@ -129,6 +135,79 @@ class MainWindow(QMainWindow):
         ).rgbSwapped()
         pixmap = QPixmap(image)
         self.label2.setPixmap(pixmap)
+
+    def circle_image(self):
+        img = self.image
+        h, w,_= img.shape[:3]
+        mask = np.zeros_like(img)
+        cv2.circle(mask, (h//2, h//2), h//3, (255, 255, 255), -1)
+        image = cv2.bitwise_and(img, mask)
+        bytes_per_line = 3 * w
+        image = QImage(
+            self.image.data, w, h, bytes_per_line, QImage.Format_RGB888
+        ).rgbSwapped()
+        pixmap = QPixmap(image)
+        self.label1.setPixmap(pixmap)
+
+    def rotate_image(self):
+        src=self.image
+        h, w, _ = src.shape
+        matrix = cv2.getRotationMatrix2D((w/2, h/2), 90, 1)
+        image = cv2.warpAffine(src, matrix, (w, h))
+        bytes_per_line = 3 * w
+        image = QImage(
+            self.image.data, w, h, bytes_per_line, QImage.Format_RGB888
+        ).rgbSwapped()
+        pixmap = QPixmap(image)
+        self.label1.setPixmap(pixmap)
+
+    def big_image(self):
+        image = cv2.resize(self.image, None, fx=1.5, fy=1.5, interpolation=cv2.INTER_CUBIC)
+        h, w, _ = image.shape
+        bytes_per_line = 3 * w
+        image = QImage(
+            image.data, w, h, bytes_per_line, QImage.Format_RGB888
+        ).rgbSwapped()
+        pixmap = QPixmap(image)
+        self.label2.setPixmap(pixmap)
+
+    def small_image(self):
+        image = cv2.resize(self.image, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
+        h, w, _ = image.shape
+        bytes_per_line = 3 * w
+        image = QImage(
+            image.data, w, h, bytes_per_line, QImage.Format_RGB888
+        ).rgbSwapped()
+        pixmap = QPixmap(image)
+        self.label2.setPixmap(pixmap)
+
+    def hist(self):
+        '''img = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
+        image = cv2.calcHist([img], [0], None, [256], [0, 256])
+        h, w = image.shape
+        bytes_per_line = 1 * w
+        image = QImage(
+            image.data, w, h, bytes_per_line, QImage.Format_Grayscale8
+        )
+        pixmap = QPixmap(image)
+        self.label2.setPixmap(pixmap)'''
+        image = self.image
+        color = ['b', 'g', 'r']
+        channel = cv2.split(image)
+        for (i, j) in zip(channel, color):
+            hist = cv2.calcHist([i], [0], None, [
+                256], [0, 256])
+            plt.plot(hist, color=j)    
+        h, w, _ = image.shape
+        bytes_per_line = 3 * w
+        image = QImage(
+            image.data, w, h, bytes_per_line, QImage.Format_RGB888
+        ).rgbSwapped()
+        pixmap = QPixmap(image)
+        self.label2.setPixmap(pixmap)
+
+        
+
     
    
 
