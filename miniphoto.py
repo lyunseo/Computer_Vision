@@ -144,7 +144,7 @@ class MainWindow(QMainWindow):
         image = cv2.bitwise_and(img, mask)
         bytes_per_line = 3 * w
         image = QImage(
-            self.image.data, w, h, bytes_per_line, QImage.Format_RGB888
+            image.data, w, h, bytes_per_line, QImage.Format_RGB888
         ).rgbSwapped()
         pixmap = QPixmap(image)
         self.label1.setPixmap(pixmap)
@@ -156,7 +156,7 @@ class MainWindow(QMainWindow):
         image = cv2.warpAffine(src, matrix, (w, h))
         bytes_per_line = 3 * w
         image = QImage(
-            self.image.data, w, h, bytes_per_line, QImage.Format_RGB888
+            image.data, w, h, bytes_per_line, QImage.Format_RGB888
         ).rgbSwapped()
         pixmap = QPixmap(image)
         self.label1.setPixmap(pixmap)
@@ -182,7 +182,7 @@ class MainWindow(QMainWindow):
         self.label2.setPixmap(pixmap)
 
     def hist(self):
-        '''img = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
+        img = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
         image = cv2.calcHist([img], [0], None, [256], [0, 256])
         h, w = image.shape
         bytes_per_line = 1 * w
@@ -190,21 +190,8 @@ class MainWindow(QMainWindow):
             image.data, w, h, bytes_per_line, QImage.Format_Grayscale8
         )
         pixmap = QPixmap(image)
-        self.label2.setPixmap(pixmap)'''
-        image = self.image
-        color = ['b', 'g', 'r']
-        channel = cv2.split(image)
-        for (i, j) in zip(channel, color):
-            hist = cv2.calcHist([i], [0], None, [
-                256], [0, 256])
-            plt.plot(hist, color=j)    
-        h, w, _ = image.shape
-        bytes_per_line = 3 * w
-        image = QImage(
-            image.data, w, h, bytes_per_line, QImage.Format_RGB888
-        ).rgbSwapped()
-        pixmap = QPixmap(image)
         self.label2.setPixmap(pixmap)
+        
 
         
 
