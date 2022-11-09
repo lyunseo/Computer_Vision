@@ -111,6 +111,7 @@ class MainWindow(QMainWindow):
         self.label1.setPixmap(pixmap)
    
 
+    # 좌우반전
     def flip_image(self):
         image = cv2.flip(self.image, 1)
         h, w, _ = image.shape
@@ -120,7 +121,8 @@ class MainWindow(QMainWindow):
         ).rgbSwapped()
         pixmap = QPixmap(image)
         self.label2.setPixmap(pixmap)
-
+    
+    # 상하반전
     def flip_image2(self):
         img = self.image
         image = cv2.flip(img, 0)
@@ -154,7 +156,7 @@ class MainWindow(QMainWindow):
         ).rgbSwapped()
         pixmap = QPixmap(image)
         self.label2.setPixmap(pixmap)
-
+   
     def circle_image(self):
         img = self.image
         h, w,_= img.shape[:3]
@@ -167,7 +169,7 @@ class MainWindow(QMainWindow):
         ).rgbSwapped()
         pixmap = QPixmap(image)
         self.label1.setPixmap(pixmap)
-
+    
     def rotate_image(self):
         src=self.image
         h, w, _ = src.shape
