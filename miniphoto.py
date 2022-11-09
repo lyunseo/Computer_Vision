@@ -18,6 +18,7 @@ class MainWindow(QMainWindow):
         self.menu_file = self.menu.addMenu("파일")
         exit = QAction("나가기", self, triggered=qApp.quit)
         self.menu_file.addAction(exit)
+      
 
 
         # 메인화면 레이아웃
@@ -36,9 +37,13 @@ class MainWindow(QMainWindow):
         button9 = QPushButton("확대")
         button10 = QPushButton("축소")
         button11 = QPushButton("히스토그램")
-       
-       
-       
+        button12 = QPushButton("가우시안블러")
+        button13 = QPushButton("미디언블러")
+        button14 = QPushButton("바이레터널 필터")
+        button15 = QPushButton("캐니 엣지")
+        button16 = QPushButton("볼록렌즈")
+        button17 = QPushButton("관심 영역")
+        button18 = QPushButton("얼굴인식")      
         
         button1.clicked.connect(self.show_file_dialog)
         button2.clicked.connect(self.clear_label)
@@ -51,7 +56,15 @@ class MainWindow(QMainWindow):
         button9.clicked.connect(self.big_image)
         button10.clicked.connect(self.small_image)
         button11.clicked.connect(self.hist)
-      
+        button12.clicked.connect(self.GaussianBlur)
+        button13.clicked.connect(self.medianBlur)
+        button14.clicked.connect(self.bilateral)
+        button15.clicked.connect(self.canny)
+        button16.clicked.connect(self.distorted)
+        button17.clicked.connect(self.select)
+        button18.clicked.connect(self.find_face)
+
+
         sidebar.addWidget(button1)
         sidebar.addWidget(button2)
         sidebar.addWidget(button3)
@@ -63,7 +76,14 @@ class MainWindow(QMainWindow):
         sidebar.addWidget(button9)
         sidebar.addWidget(button10)
         sidebar.addWidget(button11)
-     
+        sidebar.addWidget(button12)
+        sidebar.addWidget(button13)
+        sidebar.addWidget(button14)
+        sidebar.addWidget(button15)
+        sidebar.addWidget(button16)
+        sidebar.addWidget(button17)
+        sidebar.addWidget(button18)
+
 
         main_layout.addLayout(sidebar)
 
@@ -89,7 +109,6 @@ class MainWindow(QMainWindow):
         ).rgbSwapped()
         pixmap = QPixmap(image)
         self.label1.setPixmap(pixmap)
-    
    
 
     def flip_image(self):
@@ -182,8 +201,46 @@ class MainWindow(QMainWindow):
         self.label2.setPixmap(pixmap)
 
     def hist(self):
-        img = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
-        image = cv2.calcHist([img], [0], None, [256], [0, 256])
+        img = self.image
+        channels = cv2.split(img)
+        colors = ('r', 'g', 'b')
+        for (ch, color) in zip (channels, colors):
+            hist = cv2.calcHist([ch], [0], None, [256], [0, 256])
+            plt.plot(hist, color = color)
+        plt.show()
+
+    def GaussianBlur(self):
+        image = cv2. GaussianBlur(self.image,(3,3),0)
+        h, w, _ = image.shape
+        bytes_per_line = 3 * w
+        image = QImage(
+            image.data, w, h, bytes_per_line, QImage.Format_RGB888
+        ).rgbSwapped()
+        pixmap = QPixmap(image)
+        self.label2.setPixmap(pixmap)
+
+    def medianBlur(self):
+        blured = cv2.medianBlur(self.image, 5)
+        h, w, _ = blured.shape
+        bytes_per_line = 3 * w
+        blured = QImage(
+            blured.data, w, h, bytes_per_line, QImage.Format_RGB888
+        ).rgbSwapped()
+        pixmap = QPixmap(blured)
+        self.label2.setPixmap(pixmap)
+
+    def bilateral(self):
+        blured = cv2.bilateralFilter(self.image, 5, 75, 75)
+        h, w, _ = blured.shape
+        bytes_per_line = 3 * w
+        blured = QImage(
+            blured.data, w, h, bytes_per_line, QImage.Format_RGB888
+        ).rgbSwapped()
+        pixmap = QPixmap(blured)
+        self.label2.setPixmap(pixmap)
+
+    def canny(self):
+        image = cv2.Canny(self.image, 50, 200)
         h, w = image.shape
         bytes_per_line = 1 * w
         image = QImage(
@@ -191,18 +248,75 @@ class MainWindow(QMainWindow):
         )
         pixmap = QPixmap(image)
         self.label2.setPixmap(pixmap)
+
+    def distorted(self):
+        img=self.image
+        h, w = img.shape[:2]
+        exp = 2  
+        scale = 1
+        mapy, mapx = np.indices((h, w), dtype=np.float32)
+
+        mapx = 2 * mapx / (w-1) - 1
+        mapy = 2 * mapy / (h-1) - 1  
         
+        r, theta = cv2.cartToPolar(mapx, mapy) 
+        r[r < scale] = r[r < scale] ** exp
 
-        
+        mapx, mapy = cv2.polarToCart(r, theta)
+        mapx = ((mapx +  1) * w - 1) / 2
+        mapy = ((mapy +  1) * h - 1) / 2
+        distorted = cv2.remap(img, mapx, mapy, cv2.INTER_LINEAR)
 
-    
-   
+        bytes_per_line = 3 * w
+        distorted = QImage(
+            distorted.data, w, h, bytes_per_line, QImage.Format_RGB888
+        ).rgbSwapped()
+        pixmap = QPixmap(distorted)
+        self.label2.setPixmap(pixmap)
 
+    def select(self):
+        img=self.image
+        x,y,w,h	= cv2.selectROI('img', img, False)
+        if w and h:
+                roi = img[y:y+h, x:x+w]
+                cv2.imshow('cropped', roi)  
+                cv2.moveWindow('cropped', 0, 0) 
+                cv2.imwrite('./cropped2.jpg', roi) 
+        h, w, _ = img.shape 
+        bytes_per_line = 3 * w
+        img = QImage(
+            img.data, w, h, bytes_per_line, QImage.Format_RGB888
+        ).rgbSwapped()
+        pixmap = QPixmap(img)
+        self.label2.setPixmap(pixmap)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows() 
 
+    def find_face(self):
+        face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+        eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')
 
+        img = self.image
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
+        faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+        for (x, y, w, h) in faces:
+            cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
 
-
+            roi_color = img[y:y + h, x:x + w]
+            roi_gray = gray[y:y + h, x:x + w]
+            eyes = eye_cascade.detectMultiScale(roi_gray)
+            for (ex, ey, ew, eh) in eyes:
+                cv2.rectangle(roi_color, (ex, ey), (ex+ew, ey+eh), (0, 255, 0), 2)
+        h, w, _ = img.shape 
+        bytes_per_line = 3 * w
+        img = QImage(
+            img.data, w, h, bytes_per_line, QImage.Format_RGB888
+        ).rgbSwapped()
+        pixmap = QPixmap(img)
+        self.label2.setPixmap(pixmap)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
