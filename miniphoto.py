@@ -43,7 +43,7 @@ class MainWindow(QMainWindow):
         button15 = QPushButton("캐니 엣지")
         button16 = QPushButton("볼록렌즈")
         button17 = QPushButton("관심 영역")
-        button18 = QPushButton("얼굴인식")      
+        #button18 = QPushButton("이미지 저장")      
         
         button1.clicked.connect(self.show_file_dialog)
         button2.clicked.connect(self.clear_label)
@@ -62,7 +62,7 @@ class MainWindow(QMainWindow):
         button15.clicked.connect(self.canny)
         button16.clicked.connect(self.distorted)
         button17.clicked.connect(self.select)
-        button18.clicked.connect(self.find_face)
+        #button18.clicked.connect(self.save_file_dialog)
 
 
         sidebar.addWidget(button1)
@@ -82,7 +82,8 @@ class MainWindow(QMainWindow):
         sidebar.addWidget(button15)
         sidebar.addWidget(button16)
         sidebar.addWidget(button17)
-        sidebar.addWidget(button18)
+        #sidebar.addWidget(button18)
+
 
 
         main_layout.addLayout(sidebar)
@@ -109,9 +110,16 @@ class MainWindow(QMainWindow):
         ).rgbSwapped()
         pixmap = QPixmap(image)
         self.label1.setPixmap(pixmap)
+
+    '''수정
+    def save_file_dialog(self):
+        fileName = QFileDialog.getSaveFileName(self,"Save Datafile", ".",
+                               "Image files (*.jpg *.png)")
+        cv2.imwrite(fileName,self.label2.setPixmap(pixmap))'''
+
+
    
 
-    # 좌우반전
     def flip_image(self):
         image = cv2.flip(self.image, 1)
         h, w, _ = image.shape
@@ -121,8 +129,7 @@ class MainWindow(QMainWindow):
         ).rgbSwapped()
         pixmap = QPixmap(image)
         self.label2.setPixmap(pixmap)
-    
-    # 상하반전
+
     def flip_image2(self):
         img = self.image
         image = cv2.flip(img, 0)
@@ -156,7 +163,7 @@ class MainWindow(QMainWindow):
         ).rgbSwapped()
         pixmap = QPixmap(image)
         self.label2.setPixmap(pixmap)
-   
+
     def circle_image(self):
         img = self.image
         h, w,_= img.shape[:3]
@@ -168,19 +175,17 @@ class MainWindow(QMainWindow):
             image.data, w, h, bytes_per_line, QImage.Format_RGB888
         ).rgbSwapped()
         pixmap = QPixmap(image)
-        self.label1.setPixmap(pixmap)
-    
+        self.label2.setPixmap(pixmap)
+
     def rotate_image(self):
-        src=self.image
-        h, w, _ = src.shape
-        matrix = cv2.getRotationMatrix2D((w/2, h/2), 90, 1)
-        image = cv2.warpAffine(src, matrix, (w, h))
+        image = cv2.rotate(self.image, cv2.ROTATE_90_CLOCKWISE)
+        h, w, _ = image.shape
         bytes_per_line = 3 * w
         image = QImage(
             image.data, w, h, bytes_per_line, QImage.Format_RGB888
         ).rgbSwapped()
         pixmap = QPixmap(image)
-        self.label1.setPixmap(pixmap)
+        self.label2.setPixmap(pixmap)
 
     def big_image(self):
         image = cv2.resize(self.image, None, fx=1.5, fy=1.5, interpolation=cv2.INTER_CUBIC)
@@ -293,39 +298,15 @@ class MainWindow(QMainWindow):
         self.label2.setPixmap(pixmap)
         cv2.waitKey(0)
         cv2.destroyAllWindows() 
-
-    def find_face(self):
-        face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-        eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')
-
-        img = self.image
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-        faces = face_cascade.detectMultiScale(gray, 1.3, 5)
-        for (x, y, w, h) in faces:
-            cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
-
-            roi_color = img[y:y + h, x:x + w]
-            roi_gray = gray[y:y + h, x:x + w]
-            eyes = eye_cascade.detectMultiScale(roi_gray)
-            for (ex, ey, ew, eh) in eyes:
-                cv2.rectangle(roi_color, (ex, ey), (ex+ew, ey+eh), (0, 255, 0), 2)
-        h, w, _ = img.shape 
-        bytes_per_line = 3 * w
-        img = QImage(
-            img.data, w, h, bytes_per_line, QImage.Format_RGB888
-        ).rgbSwapped()
-        pixmap = QPixmap(img)
-        self.label2.setPixmap(pixmap)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-
-
 if __name__ == "__main__":
     app = QApplication()
     window = MainWindow()
     window.show()
     sys.exit(app.exec())
+
+
+
+
 
 
 
