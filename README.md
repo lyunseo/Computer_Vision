@@ -9,7 +9,7 @@
 
 ## 개발환경
 Python Version 3.9 (Window)  
-Visual Studio Code
+Visual Studio Code(version 1.73)
 
 
 ## 설치
@@ -34,6 +34,8 @@ from PySide6.QtWidgets import (
 
 * 0.1.0
   * 프로그램 첫 출시
+* 0.1.1
+  * 작동 오류 수정
   
 ## 프로젝트 예시
 ![프로그램 실행 예시 화면](https://user-images.githubusercontent.com/117658776/200847048-d93b4546-32b4-4b05-abb7-35536f1e7388.jpg)
