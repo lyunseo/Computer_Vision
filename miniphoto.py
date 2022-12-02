@@ -43,7 +43,7 @@ class MainWindow(QMainWindow):
         button15 = QPushButton("캐니 엣지")
         button16 = QPushButton("볼록렌즈")
         button17 = QPushButton("관심 영역")
-        #button18 = QPushButton("이미지 저장")      
+            
         
         button1.clicked.connect(self.show_file_dialog)
         button2.clicked.connect(self.clear_label)
@@ -62,7 +62,7 @@ class MainWindow(QMainWindow):
         button15.clicked.connect(self.canny)
         button16.clicked.connect(self.distorted)
         button17.clicked.connect(self.select)
-        #button18.clicked.connect(self.save_file_dialog)
+     
 
 
         sidebar.addWidget(button1)
@@ -82,7 +82,7 @@ class MainWindow(QMainWindow):
         sidebar.addWidget(button15)
         sidebar.addWidget(button16)
         sidebar.addWidget(button17)
-        #sidebar.addWidget(button18)
+       
 
 
 
@@ -110,15 +110,6 @@ class MainWindow(QMainWindow):
         ).rgbSwapped()
         pixmap = QPixmap(image)
         self.label1.setPixmap(pixmap)
-
-    '''수정
-    def save_file_dialog(self):
-        fileName = QFileDialog.getSaveFileName(self,"Save Datafile", ".",
-                               "Image files (*.jpg *.png)")
-        cv2.imwrite(fileName,self.label2.setPixmap(pixmap))'''
-
-
-   
 
     def flip_image(self):
         image = cv2.flip(self.image, 1)
