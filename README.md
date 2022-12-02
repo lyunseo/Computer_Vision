@@ -38,4 +38,4 @@ from PySide6.QtWidgets import (
   * 작동 오류 수정
   
 ## 프로젝트 예시
-![프로그램 실행 예시 화면](https://user-images.githubusercontent.com/117658776/200847048-d93b4546-32b4-4b05-abb7-35536f1e7388.jpg)
+![프로그램 실행 예시 화면]((https://user-images.githubusercontent.com/117658776/205313538-0d87eed1-2697-487a-b196-53096340c510.jpg)
